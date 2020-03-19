@@ -1,0 +1,39 @@
+-- ******************BASIC SQL*********************
+SELECT * 
+FROM STAFF
+LIMIT 10 --limit the number of rows
+--  
+SELECT COUNT (*), gender
+from staff  -- posgresql is not case-sensitive
+GROUP BY gender
+--
+SELECT Max (salary) , gender -- include gender for displaying m,f 
+from staff  -- posgresql is not case-sensitive
+GROUP BY gender
+--
+SELECT Max  gender, (salary),MIN (SALARY), AVG (salary)
+from staff  -- posgresql is not case-sensitive
+GROUP BY gender
+--
+SELECT DEPARTMENT, Sum(Salary), round(AVG(SALARY)), round(var_pop (SALARY)), round(stddev_pop (SALARY))
+FROM STAFF
+GROUP BY (DEPARTMENT)
+--
+SELECT department, Sum(Salary), round(AVG(SALARY)), round(var_pop (SALARY)), round(stddev_pop (SALARY))
+FROM STAFF 
+WHERE salary> 50000  AND Department LIKE 'T%s' OR Department = 'Tools' 
+GROUP BY (department)
+--******************Reformatting Data*********************
+SELECT DISTINCT
+UPPER(department)
+FROM staff
+--
+SELECT SUBSTRING (job_title FROM 10 FOR 5) P_cat --new col name p_cat, substring from 10th letter and 5 letters ahead 
+FROM staff
+WHERE job_title LIKE 'Assistant%' 
+--
+SELECT OVERLAY(job_title PLACING 'Asst' FROM 1 FOR 9) -- replace part of string by text index
+FROM STAFF
+WHERE job_title like 'Assistant%'
+
+
