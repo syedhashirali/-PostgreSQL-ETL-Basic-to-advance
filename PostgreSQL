@@ -27,6 +27,7 @@ GROUP BY (department)
 SELECT DISTINCT
 UPPER(department)
 FROM staff
+
 --
 SELECT SUBSTRING (job_title FROM 10 FOR 5) P_cat --new col name p_cat, substring from 10th letter and 5 letters ahead 
 FROM staff
@@ -35,5 +36,92 @@ WHERE job_title LIKE 'Assistant%'
 SELECT OVERLAY(job_title PLACING 'Asst' FROM 1 FOR 9) -- replace part of string by text index
 FROM STAFF
 WHERE job_title like 'Assistant%'
+--*********REGEX***************
+SELECT job_title
+FROM staff
+WHERE job_title SIMILAR TO '%Assistant%' --JOB TITLES THAT include assistant. Case sesitive
+--
+SELECT job_title
+FROM staff
+WHERE job_title SIMILAR TO '%Assistant% (II|IV)'--contains assistant & II or IV
+--
+SELECT job_title
+FROM staff
+WHERE job_title SIMILAR TO '%Assistant% (III|I_)'--contains assistant & III or any 2 letter roman numeric
+--
+SELECT job_title
+FROM staff
+WHERE job_title SIMILAR TO '[CD]%'--title begins with C or D
+--
+SELECT s1.last_name, 
+s1.department, 
+s1.salary,
+(SELECT trunc(AVG(s2.salary)) FROM staff s2 WHERE s1.department = s2.department)--add a col with aggregate values through sub-querries
+FROM staff s1
+--
+--select avg salaries of executives in a salary
+SELECT s1.department, avg(s1.salary)
+FROM
+(SELECT department, salary 
+FROM staff
+WHERE salary> 100000 ) s1
+GROUP BY s1.department
+--
+--who has the highest salary
+SELECT * 
+FROM staff s2
+WHERE s2.salary= (SELECT  max(salary)
+						FROM staff s1)-- subquery gives just the salary
+--
+--join 2 tables 
+SELECT s.job_title,
+cq.department,
+cq.company_division
+FROM staff s LEFT Join company_divisions cq
+ON s.department = cq.department
+--
+--join 3 tables and create a view. Use view name instead of table name later
+CREATE VIEW staff_cq_cr AS 
+SELECT s.job_title,
+cq.department,
+cq.company_division
+FROM staff s LEFT Join company_divisions cq
+ON s.department = cq.department
+LEFT JOIN company_regions cr
+ON s.region_id = cr.region_id
+--
+--Group by 2 things
+SELECT department, company_division, count(*)
+FROM staff_cq_cr
+GROUP BY 
+GROUPING SETS(department, company_division)
+-- fetch first orders the values before top result unlike LIMIT
+--TOP N works with order by
+SELECT department, count(*)
+FROM staff
+GROUP BY department
+ORDER BY count(*) DESC
+FETCH FIRST 5 ROWS ONLY
+--
+--aggregated and non-aggregated toghether
+SELECT department, last_name, salary, 
+avg(staff.salary) OVER (PARTITION BY department)
+FROM staff
+--
+-- get salary ranks in each department
+SELECT last_name, salary,
+rank() OVER (PARTITION BY department ORDER BY salary DESC)
+FROM staff
+--
+-- get salary of previous/next row in each department
+SELECT last_name, salary,
+lag(salary) OVER (PARTITION BY department ORDER BY salary DESC)
+FROM staff
+-- Ntile divides rows into 4 (n) ordered buckets
+SELECT last_name, salary,
+Ntile(4) OVER (PARTITION BY department ORDER BY salary DESC)
+FROM staff
 
+            
+    
 
